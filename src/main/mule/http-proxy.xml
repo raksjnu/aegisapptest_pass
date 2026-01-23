@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ibm-mq="http://www.mulesoft.org/schema/mule/ibm-mq"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                          http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+http://www.mulesoft.org/schema/mule/ibm-mq http://www.mulesoft.org/schema/mule/ibm-mq/current/mule-ibm-mq.xsd">
+
+    
+    <ibm-mq:config name="IBM_MQ_Config2" doc:name="IBM MQ Config" doc:id="80729fd7-29fe-490c-b805-0e603ff0de8a" >
+		<ibm-mq:connection >
+			<ibm-mq:connection-mode >
+				<ibm-mq:binding />
+			</ibm-mq:connection-mode>
+		</ibm-mq:connection>
+	</ibm-mq:config>
+	<flow name="http-proxy-flow">
+        <choice doc:name="Choice">
+            <when expression="#[vars.isFlagEnabled == true]">
+                <logger level="INFO" doc:name="Logger" message="Logic Triggered"/>
+            </when>
+            <otherwise>
+                <logger level="INFO" doc:name="Logger" message="Normal Flow"/>
+            </otherwise>
+        </choice>
+        
+        <!-- MQ Publish with Property Placeholder -->
+        <anypoint-mq:publish doc:name="Publish" config-ref="Anypoint_MQ_Config" destination="${anypoint.mq.queue}"/>
+
+        <anypoint-mq:config name="Anypoint_MQ_Config" doc:name="Anypoint MQ Config">
+            <anypoint-mq:connection url="https://mq-us-east-1.anypoint.mulesoft.com/api/v1" />
+        </anypoint-mq:config>
+    </flow>
+    
+    <sub-flow name="mq-publish-subflow" doc:id="25fc19f3-76ec-4c4e-a133-372b720ac8d1">
+		<logger level="INFO" message="Publishing processing event to MQ..."/>
+		
+		<ee:transform doc:name="To Legacy XML" doc:id="fb7320a0-11f8-4d03-82a5-b6afe3ec7a48">
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+{
+	Event: {
+		Id: vars.transactionId,
+		Type: "OrderProcessed",
+        // RULE 011: DLP Flag (FAIL)
+        Prop: "${event.prop}",
+		Origin: "MuleApp1"
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		
+		<choice doc:name="Choice" doc:id="effaadb1-4359-49c2-9415-cc44e96ca8d6" >
+			<when expression="#[upper(p('mq.enable')) == 'ON']">
+				<ibm-mq:publish doc:name="Publish" doc:id="c6beef2a-6fb1-4f28-be1a-0931c660b3af" config-ref="IBM_MQ_Config1" destination="ibm.queue"/>
+			</when>
+			<otherwise >
+				<jms:publish doc:name="Publish to Queue" doc:id="76538508-2d6e-4049-afa7-f4d633121089" config-ref="JMS_Config" destination="${jms.queue.orders}">
+			<jms:message>
+				<jms:properties><![CDATA[#[{ "correlationId": vars.transactionId }]]]></jms:properties>
+			</jms:message>
+		</jms:publish>
+			</otherwise>
+		</choice>
+	</sub-flow>
+</mule>

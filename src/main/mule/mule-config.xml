@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" 
+      xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto"
+      xmlns:apikit-soap="http://www.mulesoft.org/schema/mule/apikit-soap"
+      xmlns="http://www.mulesoft.org/schema/mule/core" 
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule.xsd
+http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/mule/apikit-soap/current/mule-apikit-soap.xsd">
+
+<apikit-soap:config name="APIKit_for_SOAP_Configuration" doc:name="APIKit for SOAP Configuration" doc:id="cef760aa-2263-4a7c-b7a9-b4b64b72d88a" soapVersion="${soapVersion}" />
+	
+    <!-- BANK-004: JCE Config -->
+    <crypto:jce-config name="JCE_Config" type="${jce.token.type}" />
+
+
+    <!-- BANK-021: SQL Server Security (Resolved path) -->
+    <db:config name="SQL_DB_Config">
+        <db:sqlserver-connection url="${sql.db.url}" />
+    </db:config>
+
+    <!-- DB2 AppId: DB2 URL -->
+    <db:config name="DB2_Config">
+        <db:db2-connection url="${db2.db.url}" />
+    </db:config>
+
+    <!-- DB-ConnPool-001: Pooling profile with placeholders -->
+    <db:config name="Database_Config">
+        <db:generic-connection url="jdbc:mysql://localhost:3306/mydb">
+            <db:pooling-profile 
+                maxPoolSize="${db.pool.maxpool}" 
+                minPoolSize="${db.pool.minpool}" 
+                acquireIncrement="${db.pool.acquireincrement}" 
+                preparedStatementCacheSize="${db.pool.preparedcache}" 
+                maxIdleTime="${db.pool.maxidletime}" />
+        </db:generic-connection>
+        <db:additional-property key="maxIdleTimeExcessConnections" value="${db.pool.maxIdleTimeExcessConnections}" />
+        <db:additional-property key="testConnectionOnCheckin" value="${db.pool.testConnectionOnCheckin}" />
+        <db:additional-property key="idleConnectionTestPeriod" value="${db.pool.idleConnectionTestPeriod}" />
+        <db:additional-property key="maxStatementsPerConnection" value="${db.pool.maxStatementsPerConnection}" />
+    </db:config>
+
+    <flow name="testFlow">
+        <!-- Secure Property Reference -->
+        <logger level="INFO" message="Using password: ${secure::db.password}" />
+        
+        <!-- BANK-002: Logger check (Property resolved) -->
+        <set-payload value="test" doc:name="Set Payload" />
+    </flow>
+
+</mule>

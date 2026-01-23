@@ -1,0 +1,9 @@
+{
+    "minMuleVersion": "4.9.7",
+    "javaSpecificationVersions": [
+        "17"
+    ],
+    "secureProperties": [
+        "secure::db.password"
+    ]
+}
