@@ -46,7 +46,11 @@ http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/m
         <!-- Secure Property Reference -->
         <logger level="INFO" message="Using password: ${secure::db.password}" />
         
-        <!-- BANK-002: Logger check (Property resolved) -->
+        <!-- BANK-004: JCE Crypto Processor -->
+        <crypto:jce-encrypt config-ref="JCE_Config" doc:name="JCE Encrypt">
+            <crypto:content>#[payload]</crypto:content>
+        </crypto:jce-encrypt>
+
         <set-payload value="test" doc:name="Set Payload" />
     </flow>
 

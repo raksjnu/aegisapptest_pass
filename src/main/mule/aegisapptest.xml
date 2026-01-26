@@ -32,7 +32,7 @@ http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/m
     <api-gateway:autodiscovery apiId="${api.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="api-autodiscovery-id" flowRef="main-orchestration-flow" />
 
     <!-- RULE 013: Crypto Config (PASS) -->
-    <crypto:jce-config name="Crypto_Jce" doc:name="Crypto Jce" doc:id="crypto-jce-id" type="JKS">
+    <crypto:jce-config name="Crypto_Jce" doc:name="Crypto Jce" doc:id="crypto-jce-id" type="${jce.token.type}">
         <crypto:jce-key-store-provider keyStorePath="keystore.jceks" type="JCEKS" password="password" alias="alias" passwordKey="password" algorithm="AES"/>
     </crypto:jce-config>
 
