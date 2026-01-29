@@ -1,4 +1,4 @@
-4<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <mule xmlns:apikit-soap="http://www.mulesoft.org/schema/mule/apikit-soap" 
     xmlns:ibm-mq="http://www.mulesoft.org/schema/mule/ibm-mq"
