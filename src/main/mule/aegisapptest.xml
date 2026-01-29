@@ -96,7 +96,7 @@ http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/m
 		<set-variable variableName="transactionId" value="#[uuid()]" doc:name="Set Transaction ID"/>
         
         <!-- RULE 033: API Method Logic (PASS) -->
-       <set-variable variableName="apimethod" value="#[toBase64(vars.encryptedRequestPath)]" doc:name="Set API Method"/>
+       <set-variable variableName="apimethod" value="#[toBase64(vars.encryptedRequestPath default)]" doc:name="Set API Method"/>
 				
 		<logger level="INFO" doc:name="Log Start" message="#['Starting transaction: ' ++ vars.transactionId]"/>
 
