@@ -58,7 +58,7 @@ output application/xml
 		</ee:transform>
 		
 		<choice doc:name="Choice" doc:id="effaadb1-4359-49c2-9415-cc44e96ca8d6" >
-			<when expression="#[upper(p('mq.enable')) == 'ON']">
+			<when expression="#[upper(${mq.enable}) == 'ON']">
 				<ibm-mq:publish doc:name="Publish" doc:id="c6beef2a-6fb1-4f28-be1a-0931c660b3af" config-ref="IBM_MQ_Config1" destination="ibm.queue"/>
 			</when>
 			<otherwise >
